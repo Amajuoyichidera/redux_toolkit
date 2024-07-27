@@ -8,8 +8,10 @@ const AddTodo = () => {
 
   const handleAddTodo = (e) => {
     e.preventDefault();
+    if(input !== '') {
     dispatch(addTodo(input));
     setInput('')
+    }
   }
 
   return (
