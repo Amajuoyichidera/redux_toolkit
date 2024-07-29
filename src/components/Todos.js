@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeTodo, updateTodo } from '../features/todo/todoSlice';
+import { fetchData } from '../features/todo/todoSlice';
 
 const Todos = () => {
   const todos = useSelector((state) => state.todos);
@@ -24,6 +25,17 @@ const Todos = () => {
         setModal(false)
     }
   }
+
+  const status = useSelector((state) => state.todos.status)
+  const items = useSelector((state) => state.todos.items)
+  const error = useSelector((state) => state.todos.error)
+
+  useEffect(() => {
+    if(status === 'idle') {
+        dispatch(fetchData())
+    }
+  }, [status, dispatch])
+
   return (
     <div>
       {todos.map((todo) => (
@@ -39,6 +51,17 @@ const Todos = () => {
         <button onClick={handleSave}>save</button>
         <button onClick={() => setModal(false)}>close</button>
     </div> }
+
+    <h1>Fetched Items</h1>
+      {status === 'loading' && <p>Loading...</p>}
+      {status === 'error' && <p>Error: {error}</p>}
+      {status === 'succeeded' && (
+        <ul>
+          {items.map((item) => (
+            <li key={item.id}>{item.title}</li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

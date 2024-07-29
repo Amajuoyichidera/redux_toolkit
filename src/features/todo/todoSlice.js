@@ -1,8 +1,18 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
-    'todos': [],
+    todos: [],
+    items: [],
+    status: 'idle',
+    error: null,    
 }
+
+export const fetchData = createAsyncThunk('data/fetchData', async () => {
+    const response = await axios.get('https://dummyjson.com/posts');
+    return response.data.posts;
+})
+
 
 export const todoSlice = createSlice({
     name: 'todo',
@@ -25,6 +35,18 @@ export const todoSlice = createSlice({
                 newTodo.text = text
             }
         }
+    },
+    extraReducers: (builder) => {
+        builder.addCase(fetchData.pending, (state) => {
+            state.status = 'loading';
+        }).addCase(fetchData.fulfilled, (state, action) => {
+            state.status = 'succeeded';
+            state.items = action.payload;
+            console.log('Data fetched successfully:', action.payload);
+        }).addCase(fetchData.rejected, (state, action) => {
+            state.status = 'error';
+            state.error = action.error.message;
+        })
     }
 })
 
